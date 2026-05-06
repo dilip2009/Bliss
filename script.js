@@ -124,7 +124,7 @@ audioElement.ontimeupdate = () => {
 function joinRoom(code) {
     if(!username) username = prompt("IDENTIFY_YOURSELF:") || "USER_" + Math.floor(Math.random()*100);
     currentRoom = code.toLowerCase();
-    document.getElementById('roomDisplay').innerText = `COMM_LINK::${currentRoom.toUpperCase()}`;
+    document.getElementById('roomDisplay').innerText = `ROOM:${currentRoom.toUpperCase()}`;
     document.getElementById('chatInput').disabled = false;
     document.getElementById('chatInput').placeholder = "TYPE_MESSAGE...";
 
