@@ -51,7 +51,9 @@ const songs = [
     {songName: "Ava Enna Enna", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961497/Ava-Enna-Enna-MassTamilan.com_iaum33.mp3"},
     {songName: "Come on Girls", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961500/Come_on_Girls_The_Celebration_of_Love_frisra.mp3"},
     {songName: "Annul Maelae", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961501/Annul-Maelae-MassTamilan.com_t7qu3g.mp3"},
-    {songName: "Adiyae Kolluthey", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961514/Adiyae-Kolluthey-MassTamilan.com_t5mtzj.mp3"}
+    {songName: "Adiyae Kolluthey", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961514/Adiyae-Kolluthey-MassTamilan.com_t5mtzj.mp3"},
+    {songName: "Pirai thedum", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/q_auto/f_auto/v1778079462/Pirai-Thedum_phwl72.mp3"},
+    {songName: "Kadhal Yen Kadhal", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/q_auto/f_auto/v1778079458/Kaadhal-Yen-Kaadhal_ekzegk.mp3"}
 ];
 
 // --- 3. MUSIC SYNC LOGIC ---
