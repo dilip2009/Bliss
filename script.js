@@ -85,20 +85,7 @@ function handleMusicSync(data) {
     setTimeout(() => { isRemoteChange = false; }, 1000);
 }
 
-// Firebase Configuration (Using your exact keys)
-const firebaseConfig = {
-  apiKey: "AIzaSyD25GDHxuFVzG0Nz4InMUGsJLIWQZgqZ6U",
-  authDomain: "bliss-ea384.firebaseapp.com",
-  databaseURL: "https://bliss-ea384-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "bliss-ea384",
-  storageBucket: "bliss-ea384.firebasestorage.app",
-  messagingSenderId: "118928717616",
-  appId: "1:118928717616:web:16f81aeeec6b7530657af5"
-};
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
 
 // State Variables
 let songIndex = 0;
