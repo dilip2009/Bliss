@@ -1,18 +1,27 @@
+const firebaseConfig = {
+  apiKey: "AIzaSyD25GDHxuFVzG0Nz4InMUGsJLIWQZgqZ6U",
+  authDomain: "bliss-ea384.firebaseapp.com",
+  databaseURL: "https://bliss-ea384-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "bliss-ea384",
+  storageBucket: "bliss-ea384.firebasestorage.app",
+  messagingSenderId: "118928717616",
+  appId: "1:118928717616:web:16f81aeeec6b7530657af5"
+  measurementId: "G-55EQLERM3T"
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
 let songIndex = 0;
 let audioElement = new Audio();
 let isRepeat = false;
-
-const masterPlay = document.getElementById('masterPlay');
-const myProgressBar = document.getElementById('myProgressBar');
-const masterSongName = document.getElementById('masterSongName');
-const timeCounter = document.getElementById('timeCounter');
-const songItemContainer = document.getElementById('songItemContainer');
-const volumeBar = document.getElementById('volumeBar');
-const repeatBtn = document.getElementById('repeatBtn');
+let currentRoom = "";
+let username = "";
+let isRemoteChange = false; // Flag to prevent infinite loops
 
 const songs = [
     {songName: "Dhinam oru kavithai", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777922617/Dhinam_oru_kavithai_ydli3z.mp3"},
-    {songName: "Oorum Blood Unplugged", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777922640/Oorum_Blood_Unplugged_hn4e9f.mp3"},
+    {songName: "Oorum Blood Unplugged", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/q_auto/f_auto/v1777922640/Oorum_Blood_Unplugged_hn4ec7.mp3"},
     {songName: "Theethiriyaai", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777922646/Theethiriyaai_ppak3k.mp3"},
     {songName: "Oorum Blood", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777922647/Oorum_Blood_s4evg1.mp3"},
     {songName: "Nee Kavithaigala", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777922656/Nee-Kavithaigala_tfrstv.mp3"},
@@ -41,69 +50,113 @@ const songs = [
     {songName: "Adiyae Kolluthey", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961514/Adiyae-Kolluthey-MassTamilan.com_t5mtzj.mp3"}
 ];
 
-function loadSong() {
-    audioElement.src = songs[songIndex].filePath;
-    masterSongName.innerText = songs[songIndex].songName;
-    audioElement.play();
-    masterPlay.className = 'fas fa-pause-circle';
+// --- SYNC ENGINE ---
+function pushMusicUpdate() {
+    if (!currentRoom || isRemoteChange) return;
+    database.ref('rooms/' + currentRoom + '/music_sync').set({
+        index: songIndex,
+        playing: !audioElement.paused,
+        time: audioElement.currentTime,
+        sender: username
+    });
 }
 
-masterPlay.onclick = () => {
-    if (audioElement.paused || audioElement.currentTime <= 0) {
-        if (!audioElement.src) loadSong(); else audioElement.play();
-        masterPlay.className = 'fas fa-pause-circle';
+function handleMusicSync(data) {
+    if (data.sender === username) return;
+    isRemoteChange = true;
+    
+    // Switch song if index changed
+    if (songIndex !== data.index) {
+        songIndex = data.index;
+        audioElement.src = songs[songIndex].filePath;
+        document.getElementById('masterSongName').innerText = songs[songIndex].songName;
+    }
+
+    // Play or Pause
+    if (data.playing) {
+        if(Math.abs(audioElement.currentTime - data.time) > 2) audioElement.currentTime = data.time;
+        audioElement.play();
+        document.getElementById('masterPlay').className = 'fas fa-pause-circle';
     } else {
         audioElement.pause();
-        masterPlay.className = 'far fa-play-circle';
+        document.getElementById('masterPlay').className = 'far fa-play-circle';
     }
-};
+    
+    setTimeout(() => { isRemoteChange = false; }, 1000);
+}
 
-audioElement.ontimeupdate = () => {
-    if (audioElement.duration) {
-        myProgressBar.value = (audioElement.currentTime / audioElement.duration) * 100;
-        let curM = Math.floor(audioElement.currentTime / 60);
-        let curS = Math.floor(audioElement.currentTime % 60);
-        let durM = Math.floor(audioElement.duration / 60);
-        let durS = Math.floor(audioElement.duration % 60);
-        timeCounter.innerText = `${curM}:${curS < 10 ? '0'+curS : curS} / ${durM}:${durS < 10 ? '0'+durS : durS}`;
-    }
-};
+// --- PLAYER CORE ---
+function loadSong() {
+    audioElement.src = songs[songIndex].filePath;
+    document.getElementById('masterSongName').innerText = songs[songIndex].songName;
+    audioElement.play();
+    document.getElementById('masterPlay').className = 'fas fa-pause-circle';
+    pushMusicUpdate();
+}
 
-myProgressBar.oninput = () => { audioElement.currentTime = (myProgressBar.value * audioElement.duration) / 100; };
-volumeBar.oninput = () => { audioElement.volume = volumeBar.value; };
-repeatBtn.onclick = () => { isRepeat = !isRepeat; repeatBtn.style.color = isRepeat ? "var(--primary)" : "white"; };
-
-audioElement.onended = () => {
-    if (isRepeat) { audioElement.currentTime = 0; audioElement.play(); } 
-    else { songIndex = (songIndex + 1) % songs.length; loadSong(); }
+document.getElementById('masterPlay').onclick = () => {
+    if (audioElement.paused) audioElement.play(); else audioElement.pause();
+    document.getElementById('masterPlay').className = audioElement.paused ? 'far fa-play-circle' : 'fas fa-pause-circle';
+    pushMusicUpdate();
 };
 
 document.getElementById('next').onclick = () => { songIndex = (songIndex + 1) % songs.length; loadSong(); };
 document.getElementById('previous').onclick = () => { songIndex = (songIndex - 1 + songs.length) % songs.length; loadSong(); };
 
-function initLibrary() {
-    songItemContainer.innerHTML = "";
+audioElement.ontimeupdate = () => {
+    if (audioElement.duration) {
+        document.getElementById('myProgressBar').value = (audioElement.currentTime / audioElement.duration) * 100;
+        let curM = Math.floor(audioElement.currentTime / 60);
+        let curS = Math.floor(audioElement.currentTime % 60);
+        let durM = Math.floor(audioElement.duration / 60);
+        let durS = Math.floor(audioElement.duration % 60);
+        document.getElementById('timeCounter').innerText = `${curM}:${curS < 10 ? '0'+curS : curS} / ${durM}:${durS < 10 ? '0'+durS : durS}`;
+    }
+};
+
+// --- CHAT & ROOM LOGIC ---
+function joinRoom(code) {
+    if(!username) username = prompt("IDENTIFY:") || "USER_" + Math.floor(Math.random()*100);
+    currentRoom = code.toLowerCase();
+    document.getElementById('roomDisplay').innerText = `COMM_LINK::${currentRoom.toUpperCase()}`;
+    document.getElementById('chatInput').disabled = false;
+
+    // Listen for chat
+    database.ref('rooms/' + currentRoom + '/chat').limitToLast(15).on('child_added', (snap) => {
+        const d = snap.val();
+        const div = document.createElement('div');
+        div.innerHTML = `<span>${d.user}:</span> ${d.msg}`;
+        document.getElementById('chatBox').appendChild(div);
+        document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+    });
+
+    // Listen for music sync
+    database.ref('rooms/' + currentRoom + '/music_sync').on('value', (snap) => {
+        const data = snap.val();
+        if (data) handleMusicSync(data);
+    });
+}
+
+document.getElementById('joinRoomBtn').onclick = () => {
+    let code = document.getElementById('roomInput').value.trim();
+    if(code) joinRoom(code);
+};
+
+document.getElementById('chatInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && e.target.value.trim()) {
+        database.ref('rooms/' + currentRoom + '/chat').push().set({ user: username, msg: e.target.value });
+        e.target.value = "";
+    }
+});
+
+function init() {
+    const cont = document.getElementById('songItemContainer');
     songs.forEach((s, i) => {
         let div = document.createElement('div');
         div.className = "song-item";
         div.innerHTML = `<span>${s.songName}</span> <i class="far fa-play-circle"></i>`;
         div.onclick = () => { songIndex = i; loadSong(); };
-        songItemContainer.appendChild(div);
+        cont.appendChild(div);
     });
 }
-
-document.getElementById('libraryBtn').onclick = () => {
-    document.getElementById('homeSection').style.display = 'none';
-    document.getElementById('playlistSection').style.display = 'block';
-    document.getElementById('libraryBtn').classList.add('active_cyb');
-    document.getElementById('homeBtn').classList.remove('active_cyb');
-};
-
-document.getElementById('homeBtn').onclick = () => {
-    document.getElementById('homeSection').style.display = 'block';
-    document.getElementById('playlistSection').style.display = 'none';
-    document.getElementById('homeBtn').classList.add('active_cyb');
-    document.getElementById('libraryBtn').classList.remove('active_cyb');
-};
-
-initLibrary();
+init();
