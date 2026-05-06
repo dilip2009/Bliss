@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -10,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
-
 <body>
     <div class="scanlines"></div>
 
@@ -18,8 +16,7 @@
         <div class="modal-content">
             <h2 class="cyber-header" style="font-size: 1rem; margin-bottom: 20px;">IDENTIFY_YOURSELF</h2>
             <input type="text" id="usernameInput" class="neon-input" placeholder="ENTER_CODENAME..." autocomplete="off">
-            <button id="confirmIdBtn" class="cyb-btn-mini"
-                style="width: 100%; margin-top: 15px; padding: 10px;">INITIALIZE_SESSION</button>
+            <button id="confirmIdBtn" class="cyb-btn-mini" style="width: 100%; margin-top: 15px; padding: 10px;">INITIALIZE_SESSION</button>
         </div>
     </div>
 
@@ -33,7 +30,7 @@
                 <li id="homeBtn" class="active_cyb"><i class="fa-solid fa-house"></i></li>
                 <li id="libraryBtn"><i class="fa-solid fa-music"></i></li>
             </ul>
-
+            
             <div class="chat-terminal">
                 <div class="chat-header" id="roomDisplay">DISCONNECTED</div>
                 <div class="room-selector">
@@ -50,7 +47,10 @@
 
         <main class="main-view">
             <section id="homeSection">
-                <h1 class="cyber-header">TERMINAL_STATUS</h1>
+                <h1 class="cyber-header" id="terminalStatus">TERMINAL_STATUS</h1>
+                <p class="status-tag" style="font-size: 0.7rem; margin-bottom: 15px; color: var(--primary);">
+                    <span id="statusDot" class="blink">●</span> <span id="statusText">SYSTEM_WAITING</span>
+                </p>
                 <div class="dashboard-grid">
                     <div class="db-card-cyb">
                         <h3>METRICS</h3>
@@ -89,7 +89,7 @@
                 <i class="fas fa-repeat" id="repeatBtn"></i>
                 <i class="fas fa-step-backward" id="previous"></i>
                 <i class="far fa-play-circle" id="masterPlay"></i>
-                <i class="fas fa-step-forward" id="next"></i>
+                <i class="fas fa-step-forward" id="next"></i> 
             </div>
             <div class="vol-group-mobile">
                 <i id="volIcon" class="fa-solid fa-volume-high"></i>
@@ -99,5 +99,4 @@
     </footer>
     <script src="script.js"></script>
 </body>
-
 </html>
