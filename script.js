@@ -1,5 +1,4 @@
 // --- 1. FIREBASE CONFIGURATION ---
-// We wrap this in a check to prevent "Identifier already declared" errors
 if (typeof firebaseConfig === 'undefined') {
     var firebaseConfig = {
         apiKey: "AIzaSyD25GDHxuFVzG0Nz4InMUGsJLIWQZgqZ6U",
@@ -13,11 +12,6 @@ if (typeof firebaseConfig === 'undefined') {
     };
 }
 
-const volumeSlider = document.querySelector('#volume-slider');
-const volumeIcon = document.querySelector('#volume-icon');
-const progressSlider = document.querySelector('#progress-slider');
-
-// Initialize Firebase only if it hasn't been initialized yet
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
@@ -113,9 +107,12 @@ document.getElementById('masterPlay').onclick = () => {
 document.getElementById('next').onclick = () => { songIndex = (songIndex + 1) % songs.length; loadSong(); };
 document.getElementById('previous').onclick = () => { songIndex = (songIndex - 1 + songs.length) % songs.length; loadSong(); };
 
+// --- RESTORED: SONG PROGRESS BAR SCRUBBING ---
+const myProgressBar = document.getElementById('myProgressBar');
+
 audioElement.ontimeupdate = () => {
     if (audioElement.duration) {
-        document.getElementById('myProgressBar').value = (audioElement.currentTime / audioElement.duration) * 100;
+        myProgressBar.value = (audioElement.currentTime / audioElement.duration) * 100;
         let curM = Math.floor(audioElement.currentTime / 60);
         let curS = Math.floor(audioElement.currentTime % 60);
         let durM = Math.floor(audioElement.duration / 60);
@@ -124,15 +121,48 @@ audioElement.ontimeupdate = () => {
     }
 };
 
+myProgressBar.oninput = () => {
+    if (audioElement.duration) {
+        audioElement.currentTime = (myProgressBar.value * audioElement.duration) / 100;
+        pushMusicUpdate(); // Sync the scrub to others
+    }
+};
+
+// --- REPEAT LOGIC ---
+document.getElementById('repeatBtn').onclick = function() {
+    isRepeat = !isRepeat;
+    this.style.color = isRepeat ? "var(--primary)" : "white";
+};
+
+audioElement.onended = () => {
+    if (isRepeat) {
+        audioElement.currentTime = 0;
+        audioElement.play();
+    } else {
+        songIndex = (songIndex + 1) % songs.length;
+        loadSong();
+    }
+};
+
+// --- VOLUME LOGIC ---
+const volumeBar = document.getElementById('volumeBar');
+const volIcon = document.getElementById('volIcon');
+
+volumeBar.oninput = () => {
+    let val = volumeBar.value;
+    audioElement.volume = val;
+    if (val == 0) volIcon.className = "fa-solid fa-volume-xmark";
+    else if (val < 0.5) volIcon.className = "fa-solid fa-volume-low";
+    else volIcon.className = "fa-solid fa-volume-high";
+};
+
 // --- 5. CHAT & ROOM LOGIC ---
 function joinRoom(code) {
     if(!username) username = prompt("IDENTIFY_YOURSELF:") || "USER_" + Math.floor(Math.random()*100);
     currentRoom = code.toLowerCase();
     document.getElementById('roomDisplay').innerText = `ROOM:${currentRoom.toUpperCase()}`;
     document.getElementById('chatInput').disabled = false;
-    document.getElementById('chatInput').placeholder = "TYPE_MESSAGE...";
 
-    // Listen for chat
     database.ref('rooms/' + currentRoom + '/chat').limitToLast(15).on('child_added', (snap) => {
         const d = snap.val();
         const div = document.createElement('div');
@@ -142,14 +172,12 @@ function joinRoom(code) {
         document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
     });
 
-    // Listen for music sync
     database.ref('rooms/' + currentRoom + '/music_sync').on('value', (snap) => {
         const data = snap.val();
         if (data) handleMusicSync(data);
     });
 }
 
-// Listen for Enter on Room Input
 document.getElementById('roomInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         let code = e.target.value.trim();
@@ -157,13 +185,11 @@ document.getElementById('roomInput').addEventListener('keypress', (e) => {
     }
 });
 
-// Join Button Click
 document.getElementById('joinRoomBtn').onclick = () => {
     let code = document.getElementById('roomInput').value.trim();
     if(code) { joinRoom(code); document.getElementById('roomInput').value = ""; }
 };
 
-// Listen for Enter on Chat Input
 document.getElementById('chatInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && e.target.value.trim() && currentRoom) {
         database.ref('rooms/' + currentRoom + '/chat').push().set({ user: username, msg: e.target.value });
@@ -183,7 +209,6 @@ function init() {
     });
 }
 
-// Tab Switching
 document.getElementById('libraryBtn').onclick = () => {
     document.getElementById('homeSection').style.display = 'none';
     document.getElementById('playlistSection').style.display = 'block';
@@ -198,40 +223,10 @@ document.getElementById('homeBtn').onclick = () => {
     document.getElementById('libraryBtn').classList.remove('active_cyb');
 };
 
-volumeSlider.addEventListener('input', () => {
-    // audio is your new Audio() object
-    // Divide by 100 because audio.volume ranges from 0 to 1
-    audio.volume = volumeSlider.value / 100; 
-});
-
-let isRepeat = false; // Global state
-const repeatBtn = document.querySelector('#repeat-btn');
-
-repeatBtn.addEventListener('click', () => {
-    isRepeat = !isRepeat; // Switch true/false
-    repeatBtn.classList.toggle('active'); // Add a CSS class to glow or change color
-});
-
-audio.addEventListener('ended', () => {
-    if (isRepeat) {
-        audio.currentTime = 0; // Reset to start
-        audio.play();          // Play again
-    } else {
-        nextTrack();           // Or whatever your function is to skip
-    }
-});
-
-volumeSlider.addEventListener('input', () => {
-    const value = volumeSlider.value;
-    // Change icon based on value
-    if (value == 0) {
-        volumeIcon.className = 'fa-solid fa-volume-xmark'; // Mute icon
-    } else if (value < 50) {
-        volumeIcon.className = 'fa-solid fa-volume-low';   // Low volume
-    } else {
-        volumeIcon.className = 'fa-solid fa-volume-high';  // High volume
-    }
-});
+function newQuote() {
+    const quotes = ["Syncing with the void.", "Neon dreams, digital reality.", "Find bliss in the frequency.", "Stay cyber, stay zen."];
+    document.getElementById('cyberQuote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
+}
 
 init();
 
