@@ -1,4 +1,4 @@
-// --- 1. FIREBASE CONFIGURATION ---
+// --- FIREBASE ---
 if (typeof firebaseConfig === 'undefined') {
     var firebaseConfig = {
         apiKey: "AIzaSyD25GDHxuFVzG0Nz4InMUGsJLIWQZgqZ6U",
@@ -11,17 +11,11 @@ if (typeof firebaseConfig === 'undefined') {
         measurementId: "G-55EQLERM3T"
     };
 }
-
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const database = firebase.database();
 
-// --- 2. STATE VARIABLES ---
-let songIndex = 0;
+let songIndex = 0, isRepeat = false, currentRoom = "", username = "", isRemoteChange = false, pendingRoom = "";
 let audioElement = new Audio();
-let isRepeat = false;
-let currentRoom = "";
-let username = "";
-let isRemoteChange = false;
 
 const songs = [
     {songName: "Dhinam oru kavithai", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777922617/Dhinam_oru_kavithai_ydli3z.mp3"},
@@ -51,164 +45,77 @@ const songs = [
     {songName: "Ava Enna Enna", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961497/Ava-Enna-Enna-MassTamilan.com_iaum33.mp3"},
     {songName: "Come on Girls", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961500/Come_on_Girls_The_Celebration_of_Love_frisra.mp3"},
     {songName: "Annul Maelae", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961501/Annul-Maelae-MassTamilan.com_t7qu3g.mp3"},
-    {songName: "Adiyae Kolluthey", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961514/Adiyae-Kolluthey-MassTamilan.com_t5mtzj.mp3"},
-    {songName: "Pirai thedum", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/q_auto/f_auto/v1778079462/Pirai-Thedum_phwl72.mp3"},
-    {songName: "Kadhal Yen Kadhal", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/q_auto/f_auto/v1778079458/Kaadhal-Yen-Kaadhal_ekzegk.mp3"}
+    {songName: "Adiyae Kolluthey", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961514/Adiyae-Kolluthey-MassTamilan.com_t5mtzj.mp3"}
 ];
 
-// --- 3. MUSIC SYNC LOGIC ---
-function pushMusicUpdate() {
-    if (!currentRoom || isRemoteChange) return;
-    database.ref('rooms/' + currentRoom + '/music_sync').set({
-        index: songIndex, playing: !audioElement.paused, time: audioElement.currentTime, sender: username
-    });
-}
+function pushMusicUpdate() { if (!currentRoom || isRemoteChange) return; database.ref('rooms/' + currentRoom + '/music_sync').set({ index: songIndex, playing: !audioElement.paused, time: audioElement.currentTime, sender: username }); }
+function handleMusicSync(data) { if (data.sender === username) return; isRemoteChange = true; if (songIndex !== data.index) { songIndex = data.index; audioElement.src = songs[songIndex].filePath; document.getElementById('masterSongName').innerText = songs[songIndex].songName; } if (data.playing) { if(Math.abs(audioElement.currentTime - data.time) > 2) audioElement.currentTime = data.time; audioElement.play(); document.getElementById('masterPlay').className = 'fas fa-pause-circle'; } else { audioElement.pause(); document.getElementById('masterPlay').className = 'far fa-play-circle'; } setTimeout(() => isRemoteChange = false, 1000); }
+function loadSong() { audioElement.src = songs[songIndex].filePath; document.getElementById('masterSongName').innerText = songs[songIndex].songName; audioElement.play(); document.getElementById('masterPlay').className = 'fas fa-pause-circle'; pushMusicUpdate(); }
 
-function handleMusicSync(data) {
-    if (data.sender === username) return;
-    isRemoteChange = true;
-    if (songIndex !== data.index) {
-        songIndex = data.index;
-        audioElement.src = songs[songIndex].filePath;
-        document.getElementById('masterSongName').innerText = songs[songIndex].songName;
-    }
-    if (data.playing) {
-        if(Math.abs(audioElement.currentTime - data.time) > 2) audioElement.currentTime = data.time;
-        audioElement.play();
-        document.getElementById('masterPlay').className = 'fas fa-pause-circle';
-    } else {
-        audioElement.pause();
-        document.getElementById('masterPlay').className = 'far fa-play-circle';
-    }
-    setTimeout(() => { isRemoteChange = false; }, 1000);
-}
-
-// --- 4. PLAYER CORE ---
-function loadSong() {
-    audioElement.src = songs[songIndex].filePath;
-    document.getElementById('masterSongName').innerText = songs[songIndex].songName;
-    audioElement.play();
-    document.getElementById('masterPlay').className = 'fas fa-pause-circle';
-    pushMusicUpdate();
-}
-
-document.getElementById('masterPlay').onclick = () => {
-    if (audioElement.paused) audioElement.play(); else audioElement.pause();
-    document.getElementById('masterPlay').className = audioElement.paused ? 'far fa-play-circle' : 'fas fa-pause-circle';
-    pushMusicUpdate();
-};
-
+document.getElementById('masterPlay').onclick = () => { if (audioElement.paused) audioElement.play(); else audioElement.pause(); document.getElementById('masterPlay').className = audioElement.paused ? 'far fa-play-circle' : 'fas fa-pause-circle'; pushMusicUpdate(); };
 document.getElementById('next').onclick = () => { songIndex = (songIndex + 1) % songs.length; loadSong(); };
 document.getElementById('previous').onclick = () => { songIndex = (songIndex - 1 + songs.length) % songs.length; loadSong(); };
 
 const myProgressBar = document.getElementById('myProgressBar');
+const timeCounter = document.getElementById('timeCounter');
 audioElement.ontimeupdate = () => {
     if (audioElement.duration) {
         myProgressBar.value = (audioElement.currentTime / audioElement.duration) * 100;
-        let curM = Math.floor(audioElement.currentTime / 60);
-        let curS = Math.floor(audioElement.currentTime % 60);
-        let durM = Math.floor(audioElement.duration / 60);
-        let durS = Math.floor(audioElement.duration % 60);
-        document.getElementById('timeCounter').innerText = `${curM}:${curS < 10 ? '0'+curS : curS} / ${durM}:${durS < 10 ? '0'+durS : durS}`;
+        let curM = Math.floor(audioElement.currentTime / 60), curS = Math.floor(audioElement.currentTime % 60);
+        let durM = Math.floor(audioElement.duration / 60), durS = Math.floor(audioElement.duration % 60);
+        timeCounter.innerText = `${curM}:${curS < 10 ? '0'+curS : curS} / ${durM}:${durS < 10 ? '0'+durS : durS}`;
     }
 };
+myProgressBar.oninput = () => { if (audioElement.duration) { audioElement.currentTime = (myProgressBar.value * audioElement.duration) / 100; pushMusicUpdate(); } };
 
-myProgressBar.oninput = () => {
-    if (audioElement.duration) { audioElement.currentTime = (myProgressBar.value * audioElement.duration) / 100; pushMusicUpdate(); }
-};
-
-document.getElementById('repeatBtn').onclick = function() {
-    isRepeat = !isRepeat; this.style.color = isRepeat ? "var(--primary)" : "white";
-};
-
-audioElement.onended = () => {
-    if (isRepeat) { audioElement.currentTime = 0; audioElement.play(); } 
-    else { songIndex = (songIndex + 1) % songs.length; loadSong(); }
-};
+document.getElementById('repeatBtn').onclick = function() { isRepeat = !isRepeat; this.style.color = isRepeat ? "var(--primary)" : "white"; };
+audioElement.onended = () => { if (isRepeat) { audioElement.currentTime = 0; audioElement.play(); } else { songIndex = (songIndex + 1) % songs.length; loadSong(); } };
 
 const volumeBar = document.getElementById('volumeBar');
-const volIcon = document.getElementById('volIcon');
-volumeBar.oninput = () => {
-    let val = volumeBar.value; audioElement.volume = val;
-    if (val == 0) volIcon.className = "fa-solid fa-volume-xmark";
-    else if (val < 0.5) volIcon.className = "fa-solid fa-volume-low";
-    else volIcon.className = "fa-solid fa-volume-high";
-};
+volumeBar.oninput = () => { audioElement.volume = volumeBar.value; let icon = document.getElementById('volIcon'); if (volumeBar.value == 0) icon.className = "fa-solid fa-volume-xmark"; else if (volumeBar.value < 0.5) icon.className = "fa-solid fa-volume-low"; else icon.className = "fa-solid fa-volume-high"; };
 
-// --- CHAT LOGIC ---
-function sendMessage() {
-    const chatInput = document.getElementById('chatInput');
-    if (chatInput.value.trim() && currentRoom) {
-        database.ref('rooms/' + currentRoom + '/chat').push().set({ user: username, msg: chatInput.value });
-        chatInput.value = "";
+function sendMessage() { const ci = document.getElementById('chatInput'); if (ci.value.trim() && currentRoom) { database.ref('rooms/' + currentRoom + '/chat').push().set({ user: username, msg: ci.value }); ci.value = ""; } }
+
+// JOIN ROOM LOGIC WITH CUSTOM MODAL
+function joinRoom(code) {
+    if (!code) return;
+    pendingRoom = code.toLowerCase();
+    if (!username) {
+        document.getElementById('idModal').style.display = 'flex';
+    } else {
+        finalizeConnection();
     }
 }
 
-function joinRoom(code) {
-    if(!username) username = prompt("IDENTIFY_YOURSELF:") || "USER_" + Math.floor(Math.random()*100);
-    currentRoom = code.toLowerCase();
-    document.getElementById('roomDisplay').innerText = `ROOM:${currentRoom.toUpperCase()}`;
-    document.getElementById('chatInput').disabled = false;
-    // 1. Enable the input
-    const chatInput = document.getElementById('chatInput');
-    chatInput.disabled = false;
-    
-    // 2. CHANGE THIS LINE TO REMOVE "LOCKED..."
-    chatInput.placeholder = "TYPE_MESSAGE...";
-
-    database.ref('rooms/' + currentRoom + '/chat').limitToLast(25).on('child_added', (snap) => {
-        const d = snap.val();
-        const div = document.createElement('div');
-        div.style.marginBottom = "5px";
-        div.style.wordBreak = "break-all";
-        div.innerHTML = `<span>${d.user}:</span> ${d.msg}`;
-        const chatBox = document.getElementById('chatBox');
-        chatBox.appendChild(div);
-        
-        // Forced Scroll to bottom
-        chatBox.scrollTop = chatBox.scrollHeight;
-    });
-
-    database.ref('rooms/' + currentRoom + '/music_sync').on('value', (snap) => {
-        const data = snap.val(); if (data) handleMusicSync(data);
-    });
-}
-
-document.getElementById('roomInput').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') { let code = e.target.value.trim(); if(code) { joinRoom(code); e.target.value = ""; } }
-});
-
-document.getElementById('joinRoomBtn').onclick = () => {
-    let code = document.getElementById('roomInput').value.trim(); if(code) { joinRoom(code); document.getElementById('roomInput').value = ""; }
+document.getElementById('confirmIdBtn').onclick = () => {
+    const val = document.getElementById('usernameInput').value.trim();
+    username = val || "USER_" + Math.floor(Math.random()*100);
+    document.getElementById('idModal').style.display = 'none';
+    finalizeConnection();
 };
 
-document.getElementById('chatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+function finalizeConnection() {
+    currentRoom = pendingRoom;
+    document.getElementById('roomDisplay').innerText = `ROOM:${currentRoom.toUpperCase()}`;
+    const ci = document.getElementById('chatInput');
+    ci.disabled = false; ci.placeholder = "TYPE...";
+    database.ref('rooms/' + currentRoom + '/chat').limitToLast(20).off(); // Prevent duplicate listeners
+    database.ref('rooms/' + currentRoom + '/chat').limitToLast(20).on('child_added', snap => {
+        const d = snap.val(), div = document.createElement('div');
+        div.innerHTML = `<span>${d.user}:</span> ${d.msg}`;
+        document.getElementById('chatBox').appendChild(div);
+        document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+    });
+    database.ref('rooms/' + currentRoom + '/music_sync').on('value', snap => { const data = snap.val(); if (data) handleMusicSync(data); });
+}
+
+document.getElementById('joinRoomBtn').onclick = () => joinRoom(document.getElementById('roomInput').value.trim());
 document.getElementById('sendMsgBtn').onclick = sendMessage;
 
-function init() {
-    const cont = document.getElementById('songItemContainer');
-    songs.forEach((s, i) => {
-        let div = document.createElement('div');
-        div.className = "song-item";
-        div.innerHTML = `<span>${s.songName}</span> <i class="far fa-play-circle"></i>`;
-        div.onclick = () => { songIndex = i; loadSong(); };
-        cont.appendChild(div);
-    });
-}
+document.getElementById('libraryBtn').onclick = () => { document.getElementById('homeSection').style.display = 'none'; document.getElementById('playlistSection').style.display = 'block'; document.getElementById('libraryBtn').classList.add('active_cyb'); document.getElementById('homeBtn').classList.remove('active_cyb'); };
+document.getElementById('homeBtn').onclick = () => { document.getElementById('homeSection').style.display = 'block'; document.getElementById('playlistSection').style.display = 'none'; document.getElementById('homeBtn').classList.add('active_cyb'); document.getElementById('libraryBtn').classList.remove('active_cyb'); };
+function newQuote() { const q = ["Syncing with the void.", "Stay cyber.", "Neon Dreams."]; document.getElementById('cyberQuote').innerText = q[Math.floor(Math.random() * q.length)]; }
 
-document.getElementById('libraryBtn').onclick = () => {
-    document.getElementById('homeSection').style.display = 'none';
-    document.getElementById('playlistSection').style.display = 'block';
-    document.getElementById('libraryBtn').classList.add('active_cyb');
-    document.getElementById('homeBtn').classList.remove('active_cyb');
-};
-
-document.getElementById('homeBtn').onclick = () => {
-    document.getElementById('homeSection').style.display = 'block';
-    document.getElementById('playlistSection').style.display = 'none';
-    document.getElementById('homeBtn').classList.add('active_cyb');
-    document.getElementById('libraryBtn').classList.remove('active_cyb');
-};
-
+function init() { const cont = document.getElementById('songItemContainer'); songs.forEach((s, i) => { let div = document.createElement('div'); div.className = "song-item"; div.innerHTML = `<span>${s.songName}</span> <i class="far fa-play-circle"></i>`; div.onclick = () => { songIndex = i; loadSong(); }; cont.appendChild(div); }); }
 init();
 
