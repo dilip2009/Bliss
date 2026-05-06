@@ -13,6 +13,10 @@ if (typeof firebaseConfig === 'undefined') {
     };
 }
 
+const volumeSlider = document.querySelector('#volume-slider');
+const volumeIcon = document.querySelector('#volume-icon');
+const progressSlider = document.querySelector('#progress-slider');
+
 // Initialize Firebase only if it hasn't been initialized yet
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
@@ -193,6 +197,41 @@ document.getElementById('homeBtn').onclick = () => {
     document.getElementById('homeBtn').classList.add('active_cyb');
     document.getElementById('libraryBtn').classList.remove('active_cyb');
 };
+
+volumeSlider.addEventListener('input', () => {
+    // audio is your new Audio() object
+    // Divide by 100 because audio.volume ranges from 0 to 1
+    audio.volume = volumeSlider.value / 100; 
+});
+
+let isRepeat = false; // Global state
+const repeatBtn = document.querySelector('#repeat-btn');
+
+repeatBtn.addEventListener('click', () => {
+    isRepeat = !isRepeat; // Switch true/false
+    repeatBtn.classList.toggle('active'); // Add a CSS class to glow or change color
+});
+
+audio.addEventListener('ended', () => {
+    if (isRepeat) {
+        audio.currentTime = 0; // Reset to start
+        audio.play();          // Play again
+    } else {
+        nextTrack();           // Or whatever your function is to skip
+    }
+});
+
+volumeSlider.addEventListener('input', () => {
+    const value = volumeSlider.value;
+    // Change icon based on value
+    if (value == 0) {
+        volumeIcon.className = 'fa-solid fa-volume-xmark'; // Mute icon
+    } else if (value < 50) {
+        volumeIcon.className = 'fa-solid fa-volume-low';   // Low volume
+    } else {
+        volumeIcon.className = 'fa-solid fa-volume-high';  // High volume
+    }
+});
 
 init();
 
