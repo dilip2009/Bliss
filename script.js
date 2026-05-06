@@ -5,7 +5,7 @@ const firebaseConfig = {
   projectId: "bliss-ea384",
   storageBucket: "bliss-ea384.firebasestorage.app",
   messagingSenderId: "118928717616",
-  appId: "1:118928717616:web:16f81aeeec6b7530657af5"
+  appId: "1:118928717616:web:16f81aeeec6b7530657af5",
   measurementId: "G-55EQLERM3T"
 };
 
