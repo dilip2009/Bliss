@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BLISS | Cyber_Terminal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="scanlines"></div>
+
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt-lightning blink"></i>
+                <span class="cyber-glitch">BLISS</span>
+            </div>
+            <ul>
+                <li id="homeBtn" class="active_cyb"><i class="fa-solid fa-house-chimney"></i> DASHBOARD</li>
+                <li id="libraryBtn"><i class="fa-solid fa-compact-disc"></i> ARCHIVES</li>
+            </ul>
+        </nav>
+
+        <main class="main-view">
+            <section id="homeSection">
+                <div class="welcome-header">
+                    <h1 class="cyber-header" id="terminalStatus">TERMINAL_STATUS::IDLE</h1>
+                    <p class="status-tag"><span id="statusDot" class="blink">●</span> <span
+                            id="statusText">SYSTEM_WAITING</span></p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="db-card-cyb">
+                        <h3><i class="fa-solid fa-microchip"></i> ENGINE_METRICS</h3>
+                        <div class="stat-content">
+                            <p class="matrix-text">CPU_LOAD: 24%</p>
+                            <p class="matrix-text">MEM_SYNC: ACTIVE</p>
+                            <p class="matrix-text">TEMP: 42°C</p>
+                        </div>
+                    </div>
+
+                    <div class="db-card-cyb">
+                        <h3><i class="fa-solid fa-seedling"></i> DAILY_ZEN</h3>
+                        <p id="cyberQuote" class="cyber-text">"Syncing with the void."</p>
+                        <button class="cyb-btn-mini" onclick="newQuote()">RE-GENERATE</button>
+                    </div>
+
+                    <div class="db-card-cyb">
+                        <h3><i class="fa-brands fa-google"></i> GOOGLE_CORE</h3>
+                        <form action="https://www.google.com/search" method="GET" target="_blank">
+                            <input type="text" name="q" class="neon-input" placeholder="SEARCH_NET...">
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <section id="playlistSection" style="display: none;">
+                <h1 class="cyber-header">AUDIO_ARCHIVES</h1>
+                <div class="neon-search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="librarySearch" class="neon-input" placeholder="SEARCH_ARCHIVES...">
+                </div>
+                <div class="song-item-list" id="songItemContainer"></div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="bottom-player">
+        <div class="player-top-row">
+            <div class="time-display"><span id="timeCounter">0:00 / 0:00</span></div>
+            <input type="range" id="myProgressBar" min="0" value="0" max="100" step="0.1">
+        </div>
+
+        <div class="player-main-controls">
+            <div class="song-info">
+                <span id="masterSongName">SELECT_TRACK</span>
+            </div>
+
+            <div class="icons-group">
+                <i class="fas fa-repeat" id="repeatBtn"></i>
+                <i class="fas fa-step-backward" id="previous"></i>
+                <i class="far fa-play-circle" id="masterPlay"></i>
+                <i class="fas fa-step-forward" id="next"></i>
+            </div>
+
+            <div class="vol-group">
+                <i id="volIcon" class="fa-solid fa-volume-high"></i>
+                <input type="range" id="volumeBar" min="0" max="1" step="0.01" value="1">
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
