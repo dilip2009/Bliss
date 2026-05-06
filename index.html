@@ -21,8 +21,9 @@
                 <li id="homeBtn" class="active_cyb"><i class="fa-solid fa-house-chimney"></i> DASHBOARD</li>
                 <li id="libraryBtn"><i class="fa-solid fa-compact-disc"></i> ARCHIVES</li>
             </ul>
+            
             <div class="chat-terminal">
-                <div class="chat-header" id="roomDisplay">ROOM::DISCONNECTED</div>
+                <div class="chat-header" id="roomDisplay">SYSTEM::DISCONNECTED</div>
                 <div class="room-selector">
                     <input type="text" id="roomInput" placeholder="ROOM_CODE...">
                     <button id="joinRoomBtn"><i class="fa-solid fa-key"></i></button>
@@ -32,9 +33,11 @@
                 </div>
                 <div class="chat-input-wrap">
                     <input type="text" id="chatInput" placeholder="LOCKED..." disabled>
+                    <i class="fa-solid fa-paper-plane" id="sendMsgBtn"></i>
                 </div>
             </div>
         </nav>
+
         <main class="main-view">
             <section id="homeSection">
                 <div class="welcome-header">
@@ -63,6 +66,7 @@
                     </div>
                 </div>
             </section>
+
             <section id="playlistSection" style="display: none;">
                 <h1 class="cyber-header">AUDIO_ARCHIVES</h1>
                 <div class="neon-search-container">
@@ -73,6 +77,7 @@
             </section>
         </main>
     </div>
+
     <footer class="bottom-player">
         <div class="player-top-row">
             <div class="time-display"><span id="timeCounter">0:00 / 0:00</span></div>
