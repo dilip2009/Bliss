@@ -1,317 +1,121 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@500;600&display=swap');
-
-:root {
-    --primary: #00fff2;
-    --glow: 0 0 10px #00fff2;
-    --bg: #000;
+// --- FIREBASE ---
+if (typeof firebaseConfig === 'undefined') {
+    var firebaseConfig = {
+        apiKey: "AIzaSyD25GDHxuFVzG0Nz4InMUGsJLIWQZgqZ6U",
+        authDomain: "bliss-ea384.firebaseapp.com",
+        databaseURL: "https://bliss-ea384-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "bliss-ea384",
+        storageBucket: "bliss-ea384.firebasestorage.app",
+        messagingSenderId: "118928717616",
+        appId: "1:118928717616:web:16f81aeeec6b7530657af5",
+        measurementId: "G-55EQLERM3T"
+    };
 }
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+const database = firebase.database();
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Rajdhani', sans-serif;
-    -webkit-tap-highlight-color: transparent;
-}
+let songIndex = 0, isRepeat = false, currentRoom = "", username = "", isRemoteChange = false, pendingRoom = "";
+let audioElement = new Audio();
 
-body {
-    background: var(--bg);
-    color: #fff;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
+const songs = [
+    { songName: "Dhinam oru kavithai", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777922617/Dhinam_oru_kavithai_ydli3z.mp3" },
+    { songName: "Oorum Blood Unplugged", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/q_auto/f_auto/v1777922640/Oorum_Blood_Unplugged_hn4ec7.mp3" },
+    { songName: "Theethiriyaai", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777922646/Theethiriyaai_ppak3k.mp3" },
+    { songName: "Oorum Blood", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777922647/Oorum_Blood_s4evg1.mp3" },
+    { songName: "Nee Kavithaigala", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777922656/Nee-Kavithaigala_tfrstv.mp3" },
+    { songName: "Mudhal Nee Mudivum Nee", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777922659/Mudhal-Nee-Mudivum-Nee_bvwsps.mp3" },
+    { songName: "Mellinamae Mellinamae", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961437/Mellinamae_Mellinamae_ozxxyr.mp3" },
+    { songName: "Mundhinam Parthene", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961437/Mundhinam-Parthene-MassTamilan.com_b8xtmc.mp3" },
+    { songName: "Kannana Kanne", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961443/Kannana-Kanne_nmdmgf.mp3" },
+    { songName: "Kannazhaga - Kiss of Love", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961448/Kannazhaga_The_Kiss_of_Love_lqcgmt.mp3" },
+    { songName: "Neeyum Naanum Anbe", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961448/Neeyum-Naanum-Anbe-MassTamilan.com_cfecej.mp3" },
+    { songName: "Nee Paartha Vizhigal", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961449/Nee_Paartha_Vizhigal_The_Touch_of_Love_ujk1di.mp3" },
+    { songName: "Nenjukkul Peidhidum", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961453/Nenjukkul-Peidhidum-MassTamilan.com_nwrsta.mp3" },
+    { songName: "Sarakku Vachirukken", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961461/Sarakku_Vachirukken_jdhaev.mp3" },
+    { songName: "Po Nee Po - Pain of Love", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961461/Po_Nee_Po_The_Pain_of_Love_hpvghy.mp3" },
+    { songName: "Minnalai Pidithu", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961462/Minnalai_Pidithu_aq4jzh.mp3" },
+    { songName: "Why This Kolaveri Di", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961471/Why_This_Kolaveri_Di_The_Soup_of_Love_bnkj9u.mp3" },
+    { songName: "Vennilavae", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961477/Vennilavae_bb39g0.mp3" },
+    { songName: "Unnaal Unnaal", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961481/Unnaal-Unnaal_sxxnqq.mp3" },
+    { songName: "Poo Pookum Oosai", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961481/Poo-Pookum-Osai_mbrhmr.mp3" },
+    { songName: "Ambikapathy", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961484/Ambikapathy_zyejjb.mp3" },
+    { songName: "Anbil Avan", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961484/Anbil-Avan_qtmxvf.mp3" },
+    { songName: "Dheema", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961493/Dheema_t8xt0.mp3" },
+    { songName: "Idhazhin Oram", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961497/Idhazhin_Oram_The_Innocence_of_Love_wdc6kc.mp3" },
+    { songName: "Ava Enna Enna", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961497/Ava-Enna-Enna-MassTamilan.com_iaum33.mp3" },
+    { songName: "Come on Girls", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961500/Come_on_Girls_The_Celebration_of_Love_frisra.mp3" },
+    { songName: "Annul Maelae", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961501/Annul-Maelae-MassTamilan.com_t7qu3g.mp3" },
+    { songName: "Adiyae Kolluthey", filePath: "https://res.cloudinary.com/dch4lm2no/video/upload/v1777961514/Adiyae-Kolluthey-MassTamilan.com_t5mtzj.mp3" }
+];
 
-.scanlines {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: repeating-linear-gradient(0deg, rgba(0, 255, 242, 0.03) 1px, transparent 1px);
-    pointer-events: none;
-    z-index: 10;
-}
+function pushMusicUpdate() { if (!currentRoom || isRemoteChange) return; database.ref('rooms/' + currentRoom + '/music_sync').set({ index: songIndex, playing: !audioElement.paused, time: audioElement.currentTime, sender: username }); }
+function handleMusicSync(data) { if (data.sender === username) return; isRemoteChange = true; if (songIndex !== data.index) { songIndex = data.index; audioElement.src = songs[songIndex].filePath; document.getElementById('masterSongName').innerText = songs[songIndex].songName; } if (data.playing) { if (Math.abs(audioElement.currentTime - data.time) > 2) audioElement.currentTime = data.time; audioElement.play(); document.getElementById('masterPlay').className = 'fas fa-pause-circle'; } else { audioElement.pause(); document.getElementById('masterPlay').className = 'far fa-play-circle'; } setTimeout(() => isRemoteChange = false, 1000); }
+function loadSong() { audioElement.src = songs[songIndex].filePath; document.getElementById('masterSongName').innerText = songs[songIndex].songName; audioElement.play(); document.getElementById('masterPlay').className = 'fas fa-pause-circle'; pushMusicUpdate(); }
 
-/* MODAL STYLES */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.9);
-    display: none;
-    /* Hidden by default */
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-}
+document.getElementById('masterPlay').onclick = () => { if (audioElement.paused) audioElement.play(); else audioElement.pause(); document.getElementById('masterPlay').className = audioElement.paused ? 'far fa-play-circle' : 'fas fa-pause-circle'; pushMusicUpdate(); };
+document.getElementById('next').onclick = () => { songIndex = (songIndex + 1) % songs.length; loadSong(); };
+document.getElementById('previous').onclick = () => { songIndex = (songIndex - 1 + songs.length) % songs.length; loadSong(); };
 
-.modal-content {
-    background: #0a0a0a;
-    padding: 30px;
-    border: 1px solid var(--primary);
-    box-shadow: var(--glow);
-    width: 85%;
-    max-width: 320px;
-    text-align: center;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
-}
-
-.container {
-    display: flex;
-    flex-direction: column;
-    height: 80vh;
-    width: 100%;
-    overflow: hidden;
-}
-
-/* SIDEBAR & CHAT */
-.sidebar {
-    width: 100%;
-    height: 320px;
-    padding: 10px;
-    border-bottom: 1px solid rgba(0, 255, 242, 0.2);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: var(--primary);
-    font-family: 'Orbitron';
-    font-size: 1.2rem;
-}
-
-.mobile-nav {
-    display: flex;
-    justify-content: space-around;
-    list-style: none;
-    margin: 5px 0;
-}
-
-.mobile-nav li {
-    padding: 5px 20px;
-    color: #444;
-    font-size: 1.2rem;
-    cursor: pointer;
-}
-
-.mobile-nav li.active_cyb {
-    color: var(--primary);
-    border-bottom: 2px solid var(--primary);
-}
-
-.chat-terminal {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: rgba(10, 10, 10, 0.9);
-    border: 1px solid rgba(0, 255, 242, 0.1);
-    overflow: hidden;
-}
-
-.chat-header {
-    font-size: 0.6rem;
-    text-align: center;
-    color: var(--primary);
-    padding: 2px;
-}
-
-.room-selector {
-    display: flex;
-    border-bottom: 1px solid #111;
-}
-
-.room-selector input {
-    background: transparent;
-    border: none;
-    color: var(--primary);
-    padding: 5px;
-    flex: 1;
-    outline: none;
-    font-size: 0.8rem;
-}
-
-.room-selector button {
-    background: transparent;
-    border: none;
-    color: var(--primary);
-    padding: 0 10px;
-}
-
-.chat-display {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px;
-    font-size: 0.85rem;
-    color: #fff;
-}
-
-.chat-display span {
-    color: var(--primary);
-    font-weight: bold;
-}
-
-.chat-input-wrap {
-    display: flex;
-    align-items: center;
-    padding: 8px;
-    border-top: 1px solid rgba(0, 255, 242, 0.1);
-}
-
-.chat-input-wrap input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: #fff;
-    outline: none;
-}
-
-/* MAIN CONTENT */
-.main-view {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-}
-
-.cyber-header {
-    font-family: 'Orbitron';
-    color: var(--primary);
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-    border-left: 3px solid var(--primary);
-    padding-left: 10px;
-}
-
-.db-card-cyb {
-    background: #0a0a0a;
-    padding: 12px;
-    border: 1px solid #1a1a1a;
-    margin-bottom: 10px;
-}
-
-.neon-input {
-    background: #000;
-    border: 1px solid var(--primary);
-    color: var(--primary);
-    padding: 10px;
-    width: 100%;
-    outline: none;
-}
-
-.cyb-btn-mini {
-    background: var(--primary);
-    color: #000;
-    border: none;
-    font-family: 'Orbitron';
-    font-size: 0.7rem;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.song-item {
-    padding: 12px;
-    border-bottom: 1px solid #111;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* PLAYER */
-.bottom-player {
-    height: 20vh;
-    background: #000;
-    border-top: 1px solid rgba(0, 255, 242, 0.2);
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    flex-shrink: 0;
-}
-
-.player-top-row-mobile {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
-.timer-text {
-    font-family: monospace;
-    color: var(--primary);
-    font-size: 0.75rem;
-}
-
-#myProgressBar {
-    width: 100%;
-    accent-color: var(--primary);
-    height: 4px;
-}
-
-.player-main-controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
-.song-info {
-    color: var(--primary);
-    font-size: 0.8rem;
-    text-align: center;
-}
-
-.icons-group {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-#masterPlay {
-    font-size: 2rem;
-    color: var(--primary);
-}
-
-.vol-group-mobile {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 70%;
-    margin-top: 5px;
-}
-
-#volumeBar {
-    flex: 1;
-    accent-color: var(--primary);
-    height: 3px;
-}
-
-#volIcon {
-    color: var(--primary);
-    font-size: 0.8rem;
-}
-
-@media (min-width: 1024px) {
-    .container {
-        flex-direction: row;
-        height: 88vh;
+const myProgressBar = document.getElementById('myProgressBar');
+const timeCounter = document.getElementById('timeCounter');
+audioElement.ontimeupdate = () => {
+    if (audioElement.duration) {
+        myProgressBar.value = (audioElement.currentTime / audioElement.duration) * 100;
+        let curM = Math.floor(audioElement.currentTime / 60), curS = Math.floor(audioElement.currentTime % 60);
+        let durM = Math.floor(audioElement.duration / 60), durS = Math.floor(audioElement.duration % 60);
+        timeCounter.innerText = `${curM}:${curS < 10 ? '0' + curS : curS} / ${durM}:${durS < 10 ? '0' + durS : durS}`;
     }
+};
+myProgressBar.oninput = () => { if (audioElement.duration) { audioElement.currentTime = (myProgressBar.value * audioElement.duration) / 100; pushMusicUpdate(); } };
 
-    .sidebar {
-        width: 300px;
-        height: 100%;
-        border-right: 1px solid rgba(0, 255, 242, 0.2);
-    }
+document.getElementById('repeatBtn').onclick = function () { isRepeat = !isRepeat; this.style.color = isRepeat ? "var(--primary)" : "white"; };
+audioElement.onended = () => { if (isRepeat) { audioElement.currentTime = 0; audioElement.play(); } else { songIndex = (songIndex + 1) % songs.length; loadSong(); } };
 
-    .bottom-player {
-        height: 120px;
+const volumeBar = document.getElementById('volumeBar');
+volumeBar.oninput = () => { audioElement.volume = volumeBar.value; let icon = document.getElementById('volIcon'); if (volumeBar.value == 0) icon.className = "fa-solid fa-volume-xmark"; else if (volumeBar.value < 0.5) icon.className = "fa-solid fa-volume-low"; else icon.className = "fa-solid fa-volume-high"; };
+
+function sendMessage() { const ci = document.getElementById('chatInput'); if (ci.value.trim() && currentRoom) { database.ref('rooms/' + currentRoom + '/chat').push().set({ user: username, msg: ci.value }); ci.value = ""; } }
+
+// JOIN ROOM LOGIC WITH CUSTOM MODAL
+function joinRoom(code) {
+    if (!code) return;
+    pendingRoom = code.toLowerCase();
+    if (!username) {
+        document.getElementById('idModal').style.display = 'flex';
+    } else {
+        finalizeConnection();
     }
 }
+
+document.getElementById('confirmIdBtn').onclick = () => {
+    const val = document.getElementById('usernameInput').value.trim();
+    username = val || "USER_" + Math.floor(Math.random() * 100);
+    document.getElementById('idModal').style.display = 'none';
+    finalizeConnection();
+};
+
+function finalizeConnection() {
+    currentRoom = pendingRoom;
+    document.getElementById('roomDisplay').innerText = `ROOM:${currentRoom.toUpperCase()}`;
+    const ci = document.getElementById('chatInput');
+    ci.disabled = false; ci.placeholder = "TYPE...";
+    database.ref('rooms/' + currentRoom + '/chat').limitToLast(20).off(); // Prevent duplicate listeners
+    database.ref('rooms/' + currentRoom + '/chat').limitToLast(20).on('child_added', snap => {
+        const d = snap.val(), div = document.createElement('div');
+        div.innerHTML = `<span>${d.user}:</span> ${d.msg}`;
+        document.getElementById('chatBox').appendChild(div);
+        document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+    });
+    database.ref('rooms/' + currentRoom + '/music_sync').on('value', snap => { const data = snap.val(); if (data) handleMusicSync(data); });
+}
+
+document.getElementById('joinRoomBtn').onclick = () => joinRoom(document.getElementById('roomInput').value.trim());
+document.getElementById('sendMsgBtn').onclick = sendMessage;
+
+document.getElementById('libraryBtn').onclick = () => { document.getElementById('homeSection').style.display = 'none'; document.getElementById('playlistSection').style.display = 'block'; document.getElementById('libraryBtn').classList.add('active_cyb'); document.getElementById('homeBtn').classList.remove('active_cyb'); };
+document.getElementById('homeBtn').onclick = () => { document.getElementById('homeSection').style.display = 'block'; document.getElementById('playlistSection').style.display = 'none'; document.getElementById('homeBtn').classList.add('active_cyb'); document.getElementById('libraryBtn').classList.remove('active_cyb'); };
+function newQuote() { const q = ["Syncing with the void.", "Stay cyber.", "Neon Dreams."]; document.getElementById('cyberQuote').innerText = q[Math.floor(Math.random() * q.length)]; }
+
+function init() { const cont = document.getElementById('songItemContainer'); songs.forEach((s, i) => { let div = document.createElement('div'); div.className = "song-item"; div.innerHTML = `<span>${s.songName}</span> <i class="far fa-play-circle"></i>`; div.onclick = () => { songIndex = i; loadSong(); }; cont.appendChild(div); }); }
+init();
 
