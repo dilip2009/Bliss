@@ -147,6 +147,12 @@ function joinRoom(code) {
     currentRoom = code.toLowerCase();
     document.getElementById('roomDisplay').innerText = `ROOM:${currentRoom.toUpperCase()}`;
     document.getElementById('chatInput').disabled = false;
+    // 1. Enable the input
+    const chatInput = document.getElementById('chatInput');
+    chatInput.disabled = false;
+    
+    // 2. CHANGE THIS LINE TO REMOVE "LOCKED..."
+    chatInput.placeholder = "TYPE_MESSAGE...";
 
     database.ref('rooms/' + currentRoom + '/chat').limitToLast(25).on('child_added', (snap) => {
         const d = snap.val();
