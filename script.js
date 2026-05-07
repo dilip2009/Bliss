@@ -109,3 +109,37 @@ Array.from(document.getElementsByClassName('songItemPlay')).forEach(el => {
     }
 });
 
+const sendBtn = document.getElementById('sendMsgBtn');
+const chatInput = document.getElementById('chatInput');
+const chatBox = document.getElementById('chatBox');
+
+const sendMessage = () => {
+    const msg = chatInput.value.trim();
+    if (msg && currentRoom) {
+        // Pushing to Firebase
+        database.ref('messages/' + currentRoom).push({
+            user: username,
+            message: msg,
+            timestamp: Date.now()
+        });
+        chatInput.value = ""; // Clear input
+    }
+};
+
+// Handle Tap
+sendBtn.onclick = sendMessage;
+
+// Handle mobile "Go/Enter" key
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
+
+// Listener to display messages in real-time
+database.ref('messages/' + currentRoom).on('child_added', (snapshot) => {
+    const data = snapshot.val();
+    const msgDiv = document.createElement('div');
+    msgDiv.innerHTML = `<span>${data.user}:</span> ${data.message}`;
+    chatBox.appendChild(msgDiv);
+    chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to bottom
+});
+
