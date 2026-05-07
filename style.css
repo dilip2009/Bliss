@@ -13,15 +13,13 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-/* MOBILE FIRST CORE LAYOUT */
 body {
     background: var(--bg);
     color: #fff;
-    /* 100dvh prevents mobile address bars from hiding the player */
     height: 100dvh;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
 }
 
 .scanlines {
@@ -29,10 +27,9 @@ body {
     inset: 0;
     background: repeating-linear-gradient(0deg, rgba(0, 255, 242, 0.03) 1px, transparent 1px);
     pointer-events: none;
-    z-index: 9999;
+    z-index: 999;
 }
 
-/* SCROLLABLE CONTENT (Takes up all space above the player) */
 .app-content {
     flex: 1;
     overflow-y: auto;
@@ -40,7 +37,6 @@ body {
     flex-direction: column;
 }
 
-/* TOP SIDEBAR & NAV */
 .sidebar {
     padding: 15px;
     border-bottom: 1px solid rgba(0, 255, 242, 0.1);
@@ -60,15 +56,14 @@ body {
     display: flex;
     justify-content: space-around;
     list-style: none;
-    margin: 15px 0;
+    margin: 10px 0;
 }
 
 .mobile-nav li {
     font-size: 1.5rem;
     color: #444;
     cursor: pointer;
-    padding: 10px;
-    transition: 0.3s;
+    padding: 5px;
 }
 
 .mobile-nav li.active_cyb {
@@ -76,47 +71,12 @@ body {
     border-bottom: 2px solid var(--primary);
 }
 
-/* CHAT TERMINAL */
 .chat-terminal {
     background: #050505;
     border: 1px solid rgba(0, 255, 242, 0.2);
-    border-radius: 4px;
+    height: 220px;
     display: flex;
     flex-direction: column;
-    height: 250px;
-}
-
-.chat-header {
-    text-align: center;
-    color: var(--primary);
-    padding: 5px;
-    font-size: 0.8rem;
-    border-bottom: 1px solid #111;
-    font-family: 'Orbitron';
-}
-
-.room-selector {
-    display: flex;
-    border-bottom: 1px solid #111;
-}
-
-.room-selector input {
-    background: transparent;
-    border: none;
-    color: var(--primary);
-    padding: 10px;
-    flex: 1;
-    outline: none;
-    font-family: 'Orbitron';
-    font-size: 0.8rem;
-}
-
-.room-selector button {
-    background: transparent;
-    border: none;
-    color: var(--primary);
-    padding: 0 15px;
-    font-size: 1rem;
 }
 
 .chat-display {
@@ -135,6 +95,7 @@ body {
     display: flex;
     padding: 10px;
     border-top: 1px solid #111;
+    align-items: center;
 }
 
 .chat-input-wrap input {
@@ -145,14 +106,8 @@ body {
     outline: none;
 }
 
-.chat-input-wrap i {
-    color: #fff;
-}
-
-/* MAIN DASHBOARD / LISTS */
 .main-view {
     padding: 15px;
-    padding-bottom: 30px;
 }
 
 .cyber-header {
@@ -168,34 +123,18 @@ body {
     background: #0a0a0a;
     padding: 15px;
     border: 1px solid #1a1a1a;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .neon-input {
     background: #000;
     border: 1px solid var(--primary);
     color: #fff;
-    padding: 12px;
+    padding: 10px;
     width: 100%;
     outline: none;
-    margin-bottom: 10px;
-    font-family: 'Orbitron';
-    font-size: 0.8rem;
 }
 
-.cyb-btn-mini {
-    background: var(--primary);
-    color: #000;
-    border: none;
-    padding: 10px;
-    font-family: 'Orbitron';
-    font-weight: bold;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 10px;
-}
-
-/* SONG LISTINGS */
 .song-item {
     padding: 15px 10px;
     border-bottom: 1px solid #111;
@@ -204,80 +143,51 @@ body {
     align-items: center;
 }
 
-.song-item span {
-    font-size: 0.9rem;
-}
-
-.song-item i {
-    color: var(--primary);
-    font-size: 1.2rem;
-    cursor: pointer;
-}
-
-/* BOTTOM PLAYER (FIXED AT BOTTOM OF SCREEN) */
 .bottom-player {
     flex-shrink: 0;
-    height: 120px;
+    height: 130px;
     background: #030303;
-    border-top: 1px solid rgba(0, 255, 242, 0.3);
+    border-top: 1px solid var(--primary);
     padding: 10px 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    z-index: 100;
+    z-index: 1000;
 }
 
 .progress-row {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 12px;
     width: 100%;
+    margin-bottom: 10px;
 }
 
-.time-text {
+#timeCounter {
     color: var(--primary);
-    font-size: 0.75rem;
-    font-family: monospace;
-    align-self: flex-start;
-    margin-bottom: 5px;
+    font-size: 0.7rem;
+    display: block;
+    margin-bottom: 4px;
 }
 
 #myProgressBar {
     width: 100%;
-    height: 4px;
     accent-color: var(--primary);
-    outline: none;
 }
 
 .controls-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
 }
 
 .song-info {
     color: var(--primary);
-    font-size: 0.8rem;
-    font-family: 'Orbitron';
+    font-size: 0.75rem;
     width: 30%;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .main-icons {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 15px;
-    width: 45%;
-}
-
-.main-icons i {
-    font-size: 1.2rem;
-    color: #fff;
-    cursor: pointer;
 }
 
 #masterPlay {
@@ -286,20 +196,14 @@ body {
 }
 
 .vol-mobile {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 5px;
-    width: 25%;
+    width: 60px;
 }
 
 #volumeBar {
     width: 100%;
-    height: 3px;
     accent-color: var(--primary);
 }
 
-/* MODAL */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -315,8 +219,18 @@ body {
     padding: 30px;
     border: 1px solid var(--primary);
     width: 85%;
-    max-width: 320px;
     text-align: center;
+}
+
+.cyb-btn-mini {
+    background: var(--primary);
+    color: #000;
+    border: none;
+    padding: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
 }
 
 .blink {
