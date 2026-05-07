@@ -1,244 +1,50 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@500;600&display=swap');
 
-:root {
-    --primary: #00fff2;
-    --bg: #000;
-}
+:root { --primary: #00fff2; --bg: #000; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; }
+body { background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Rajdhani', sans-serif;
-    -webkit-tap-highlight-color: transparent;
-}
+/* FIX: Main view must not hide behind the fixed player */
+.main-view { padding: 15px; padding-bottom: 160px; } 
 
-body {
-    background: var(--bg);
-    color: #fff;
-    height: 100dvh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
+.sidebar { padding: 10px; border-bottom: 1px solid rgba(0,255,242,0.1); }
+.mobile-nav { display: flex; justify-content: space-around; list-style: none; margin: 15px 0; }
+.mobile-nav li { font-size: 1.5rem; color: #444; cursor: pointer; }
+.mobile-nav li.active_cyb { color: var(--primary); }
 
-.scanlines {
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(0deg, rgba(0, 255, 242, 0.03) 1px, transparent 1px);
-    pointer-events: none;
-    z-index: 999;
-}
+.chat-terminal { background: #050505; border: 1px solid #111; border-radius: 4px; height: 250px; display: flex; flex-direction: column; }
+.chat-display { flex: 1; overflow-y: auto; padding: 10px; font-size: 0.9rem; }
+.chat-input-wrap { display: flex; padding: 10px; border-top: 1px solid #111; }
+.chat-input-wrap input { flex: 1; background: transparent; border: none; color: #fff; outline: none; }
 
-.app-content {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-}
-
-.sidebar {
-    padding: 15px;
-    border-bottom: 1px solid rgba(0, 255, 242, 0.1);
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: var(--primary);
-    font-family: 'Orbitron';
-    font-size: 1.5rem;
-}
-
-.mobile-nav {
-    display: flex;
-    justify-content: space-around;
-    list-style: none;
-    margin: 10px 0;
-}
-
-.mobile-nav li {
-    font-size: 1.5rem;
-    color: #444;
-    cursor: pointer;
-    padding: 5px;
-}
-
-.mobile-nav li.active_cyb {
-    color: var(--primary);
-    border-bottom: 2px solid var(--primary);
-}
-
-.chat-terminal {
-    background: #050505;
-    border: 1px solid rgba(0, 255, 242, 0.2);
-    height: 220px;
-    display: flex;
-    flex-direction: column;
-}
-
-.chat-display {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-    font-size: 0.9rem;
-}
-
-.chat-display span {
-    color: var(--primary);
-    font-weight: bold;
-}
-
-.chat-input-wrap {
-    display: flex;
-    padding: 10px;
-    border-top: 1px solid #111;
-    align-items: center;
-}
-
-.chat-input-wrap input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: #fff;
-    outline: none;
-}
-
-.main-view {
-    padding: 15px;
-}
-
-.cyber-header {
-    color: var(--primary);
-    font-family: 'Orbitron';
-    font-size: 1.2rem;
-    margin-bottom: 15px;
-    border-left: 3px solid var(--primary);
-    padding-left: 10px;
-}
-
-.db-card-cyb {
-    background: #0a0a0a;
-    padding: 15px;
-    border: 1px solid #1a1a1a;
-    margin-bottom: 10px;
-}
-
-.neon-input {
-    background: #000;
-    border: 1px solid var(--primary);
-    color: #fff;
-    padding: 10px;
-    width: 100%;
-    outline: none;
-}
-
-.song-item {
-    padding: 15px 10px;
-    border-bottom: 1px solid #111;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
+/* FIX: Player is now FIXED to the bottom of the screen */
 .bottom-player {
-    flex-shrink: 0;
-    height: 130px;
-    background: #030303;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 140px;
+    background: rgba(0, 0, 0, 0.95);
     border-top: 1px solid var(--primary);
-    padding: 10px 15px;
+    padding: 10px;
     z-index: 1000;
 }
 
-.progress-row {
-    width: 100%;
-    margin-bottom: 10px;
-}
+.player-inner { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.progress-container { width: 100%; display: flex; flex-direction: column; align-items: center; }
+#myProgressBar { width: 90%; accent-color: var(--primary); }
+#timeCounter { font-size: 0.7rem; color: var(--primary); }
+.controls-row { display: flex; align-items: center; gap: 20px; width: 100%; justify-content: center; }
+#masterPlay { font-size: 2.2rem; color: var(--primary); }
+.vol-mini { display: flex; align-items: center; gap: 5px; width: 60px; }
+#volumeBar { width: 100%; height: 3px; accent-color: var(--primary); }
 
-#timeCounter {
-    color: var(--primary);
-    font-size: 0.7rem;
-    display: block;
-    margin-bottom: 4px;
-}
+.cyber-header { color: var(--primary); font-family: 'Orbitron'; font-size: 1.2rem; margin: 20px 0; }
+.db-card-cyb { background: #0a0a0a; padding: 15px; border: 1px solid #111; margin-bottom: 10px; }
+.neon-input { background: #000; border: 1px solid var(--primary); color: #fff; padding: 10px; width: 100%; }
+.cyb-btn-mini { background: var(--primary); color: #000; border: none; padding: 5px 15px; font-weight: bold; cursor: pointer; }
+.blink { animation: blinker 1.5s linear infinite; }
+@keyframes blinker { 50% { opacity: 0; } }
 
-#myProgressBar {
-    width: 100%;
-    accent-color: var(--primary);
-}
-
-.controls-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.song-info {
-    color: var(--primary);
-    font-size: 0.75rem;
-    width: 30%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.main-icons {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-#masterPlay {
-    font-size: 2.2rem;
-    color: var(--primary);
-}
-
-.vol-mobile {
-    width: 60px;
-}
-
-#volumeBar {
-    width: 100%;
-    accent-color: var(--primary);
-}
-
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.95);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-}
-
-.modal-content {
-    background: #0a0a0a;
-    padding: 30px;
-    border: 1px solid var(--primary);
-    width: 85%;
-    text-align: center;
-}
-
-.cyb-btn-mini {
-    background: var(--primary);
-    color: #000;
-    border: none;
-    padding: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 10px;
-}
-
-.blink {
-    animation: blinker 1.5s linear infinite;
-}
-
-@keyframes blinker {
-    50% {
-        opacity: 0;
-    }
-}
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; align-items: center; justify-content: center; }
+.modal-content { width: 80%; text-align: center; }
