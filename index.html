@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -10,28 +9,26 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
-
 <body>
     <div class="scanlines"></div>
 
     <div id="idModal" class="modal-overlay">
         <div class="modal-content">
             <h2 class="cyber-header">IDENTIFY_YOURSELF</h2>
-            <input type="text" id="usernameInput" class="neon-input" placeholder="ENTER_CODENAME..." autocomplete="off">
+            <input type="text" id="usernameInput" class="neon-input" placeholder="ENTER_CODENAME...">
             <button id="confirmIdBtn" class="cyb-btn-mini">INITIALIZE_SESSION</button>
         </div>
     </div>
 
-    <div class="app-content">
+    <div class="container">
         <nav class="sidebar">
             <div class="logo"><i class="fa-solid fa-bolt-lightning blink"></i> <span>BLISS</span></div>
             <ul class="mobile-nav">
                 <li id="homeBtn" class="active_cyb"><i class="fa-solid fa-house"></i></li>
                 <li id="libraryBtn"><i class="fa-solid fa-music"></i></li>
             </ul>
-
             <div class="chat-terminal">
-                <div class="chat-header" id="roomDisplay">SYSTEM: OFFLINE</div>
+                <div class="chat-header" id="roomDisplay">SYSTEM:OFFLINE</div>
                 <div class="room-selector">
                     <input type="text" id="roomInput" placeholder="ROOM_CODE..">
                     <button id="joinRoomBtn"><i class="fa-solid fa-key"></i></button>
@@ -53,40 +50,39 @@
                         <p>CPU: 24% | TEMP: 42°C</p>
                     </div>
                     <div class="db-card-cyb">
-                        <h3>GOOGLE_CORE</h3>
-                        <form action="https://www.google.com/search" method="GET" target="_blank">
-                            <input type="text" name="q" class="neon-input" placeholder="GOOGLE_SEARCH...">
-                        </form>
+                        <h3>DAILY_ZEN</h3>
+                        <p id="cyberQuote">"Syncing with the void."</p>
+                        <button class="cyb-btn-mini" onclick="newQuote()">REFRESH</button>
                     </div>
                 </div>
             </section>
 
             <section id="playlistSection" style="display: none;">
-                <h1 class="cyber-header">AUDIO_ARCHIVES</h1>
+                <h1 class="cyber-header">ARCHIVES</h1>
                 <div class="song-item-list" id="songItemContainer"></div>
             </section>
         </main>
     </div>
 
     <footer class="bottom-player">
-        <div class="progress-row">
-            <span id="timeCounter">0:00 / 0:00</span>
-            <input type="range" id="myProgressBar" min="0" value="0" max="100" step="0.1">
-        </div>
-        <div class="controls-row">
+        <div class="player-inner">
+            <div class="progress-container">
+                <span id="timeCounter">0:00 / 0:00</span>
+                <input type="range" id="myProgressBar" min="0" value="0" max="100">
+            </div>
             <div class="song-info"><span id="masterSongName">SELECT_TRACK</span></div>
-            <div class="main-icons">
+            <div class="controls-row">
                 <i class="fas fa-repeat" id="repeatBtn"></i>
                 <i class="fas fa-step-backward" id="previous"></i>
                 <i class="far fa-play-circle" id="masterPlay"></i>
                 <i class="fas fa-step-forward" id="next"></i>
-            </div>
-            <div class="vol-mobile">
-                <input type="range" id="volumeBar" min="0" max="1" step="0.01" value="1">
+                <div class="vol-mini">
+                    <i id="volIcon" class="fa-solid fa-volume-high"></i>
+                    <input type="range" id="volumeBar" min="0" max="1" step="0.01" value="1">
+                </div>
             </div>
         </div>
     </footer>
-    <script src="script.js?v=fresh"></script>
+    <script src="script.js"></script>
 </body>
-
 </html>
